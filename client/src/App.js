@@ -1,5 +1,6 @@
 import './App.css';
 import {useState} from "react";
+import './index.css';
 
 function App() {
     const fakeDataArray = [
@@ -29,13 +30,12 @@ function App() {
     );
 }
 
-
 const PageContent = (props) => {
     const items = []
     for (const [index, value] of props.dataArray.entries()) {
         items.push(<Block key={index} data={value}/>)
     }
-    return (<div>
+    return (<div className='p-12'>
         {items}
     </div>)
 }
@@ -46,7 +46,9 @@ const Block = (props) => {
         setValue(event.target.value)
     }
     return (
-        <input type="text" id={props.id} value={value} onChange={onChange}/>
+        <div className='block-wrap'>
+            <input className='block' type="text" id={props.id} value={value} onChange={onChange}/>
+        </div>
     )
 }
 
