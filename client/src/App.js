@@ -1,33 +1,47 @@
 import './App.css';
 import {useState} from "react";
 import './index.css';
+import useAsyncFetch from "./useAsyncFetch";
 
 function App() {
-    const fakeDataArray = [
-        {
-            id: 0,
-            properties: {
-                title: "i'm the first block"
-            },
-        },
-        {
-            id: 1,
-            properties: {
-                title: "i'm the second block"
-            },
-        },
-        {
-            id: 2,
-            properties: {
-                title: "i'm the third block"
-            },
-        }
-    ]
-    return (
-        <div className="App">
-            <PageContent dataArray={fakeDataArray}/>
-        </div>
-    );
+    // const fakeDataArray = [
+    //     {
+    //         id: 0,
+    //         properties: {
+    //             title: "i'm the first block"
+    //         },
+    //     },
+    //     {
+    //         id: 1,
+    //         properties: {
+    //             title: "i'm the second block"
+    //         },
+    //     },
+    //     {
+    //         id: 2,
+    //         properties: {
+    //             title: "i'm the third block"
+    //         },
+    //     }
+    // ]
+    const [pageData, setPageData] = useState([]);
+    useAsyncFetch("/page", {}, (result) => {
+        console.log(result)
+        setPageData(result);
+    }, (error) => {
+        console.log(error);
+    }, []);
+
+    if(pageData){
+        return (
+            <div className="App">
+                <PageContent dataArray={pageData}/>
+            </div>
+        );
+    } else {
+        return (<div/>)
+    }
+
 }
 
 const PageContent = (props) => {

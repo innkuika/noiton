@@ -1,38 +1,69 @@
 import {Request, Response} from 'express';
 import Express from 'express';
 import "reflect-metadata";
-import {createConnection} from "typeorm";
-import {User} from "./entity/User";
+import {createConnection, ConnectionOptions} from "typeorm";
+import {Block} from "./entity/Block";
+import {BlockProperties} from "./entity/BlockProperties";
+import {root} from "./path";
 
 const app = Express();
-const port = 8080; // default port to listen
+const cors = require('cors')
+const port = 8000; // default port to listen
+console.log("path: ", `${root}/data/database.sqlite`)
+createConnection({
+    type: "sqlite",
+    database: `${root}/data/database.sqlite`,
+    entities: [Block, BlockProperties],
+    logging: false,
+    synchronize: true,
+}).then(async connection => {
+    // console.log("Cleaning up database...");
+    // await connection.createQueryBuilder().delete().from(Block).execute();
 
+    // console.log("Inserting a new block into the database...");
+    // const blockProperties = new BlockProperties();
+    // blockProperties.title = "I'm the first block";
+    //
+    // const block = new Block();
+    // block.properties = blockProperties;
+    //
+    // await connection.manager.save(blockProperties);
+    // await connection.manager.save(block);
+    //
+    // console.log("Saved a new blockProperty with id: " + blockProperties.id, "title: ", blockProperties.title);
+    // console.log("Saved a new block with id: " + block.id);
 
-createConnection().then(async connection => {
-    console.log("Inserting a new user into the database...");
-    const user = new User();
-    user.firstName = "Timber";
-    user.lastName = "Saw";
-    user.age = 25;
-    await connection.manager.save(user);
-    console.log("Saved a new user with id: " + user.id);
+    // let blockRepository = connection.getRepository(Block);
+    // console.log("Loading blocks from the database...");
+    //
+    // const myBlock = await blockRepository.findOne();
+    // console.log("Loaded block: ", myBlock);
 
-    console.log("Loading users from the database...");
-    const users = await connection.manager.find(User);
-    console.log("Loaded users: ", users);
+    // start the express server
+    app.listen(port, () => {
+        console.log(`server started at http://localhost:${port}`);
+    });
 
-    console.log("Here you can setup and run express/koa/any other framework.");
+    app.use(cors());
+
+// define a route handler for the default home page
+    app.get("/page", cors(), async (req: Request, res: Response) => {
+        let blockRepository = connection.getRepository(Block);
+        const myProperty = await blockRepository.find({relations: ["properties"]})
+        console.log("Loaded properties: ", myProperty);
+        res.send(JSON.stringify(myProperty));
+    });
+
+    app.get("/update-block", cors(), async (req: Request, res: Response) => {
+
+    })
+
+    app.use(function (request, response) {
+        response.status(404);
+        response.send("Cannot answer this request");
+    })
+
 
 }).catch(error => console.log(error));
 
-// define a route handler for the default home page
-app.get("/", (req: Request, res: Response) => {
-    // render the index template
-    res.send("index");
-});
 
-// start the express server
-app.listen(port, () => {
-    // tslint:disable-next-line:no-console
-    console.log(`server started at http://localhost:${port}`);
-});
