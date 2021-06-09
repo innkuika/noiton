@@ -7,7 +7,9 @@ export class Block {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(type => BlockProperties)
+    @OneToOne(type => BlockProperties, {
+        cascade: true,
+    })
     @JoinColumn()
     properties: BlockProperties;
 

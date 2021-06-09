@@ -6,7 +6,8 @@ import React, {useEffect} from 'react';
 
 const useAsyncFetch = function (url, options, thenFun, catchFun, deps) {
     // the usual function that does a fetch
-    const route = "http://localhost:8000"+url
+    const route = "http://localhost:8000" + url
+
     async function fetchData() {
         try {
             const res = await fetch(route, options);

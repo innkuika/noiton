@@ -1,29 +1,9 @@
 import './App.css';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import './index.css';
 import useAsyncFetch from "./useAsyncFetch";
 
 function App() {
-    // const fakeDataArray = [
-    //     {
-    //         id: 0,
-    //         properties: {
-    //             title: "i'm the first block"
-    //         },
-    //     },
-    //     {
-    //         id: 1,
-    //         properties: {
-    //             title: "i'm the second block"
-    //         },
-    //     },
-    //     {
-    //         id: 2,
-    //         properties: {
-    //             title: "i'm the third block"
-    //         },
-    //     }
-    // ]
     const [pageData, setPageData] = useState([]);
     useAsyncFetch("/page", {}, (result) => {
         console.log(result)
@@ -32,7 +12,7 @@ function App() {
         console.log(error);
     }, []);
 
-    if(pageData){
+    if (pageData) {
         return (
             <div className="App">
                 <PageContent dataArray={pageData}/>
@@ -55,13 +35,47 @@ const PageContent = (props) => {
 }
 
 const Block = (props) => {
-    const [value, setValue] = useState(props.data.properties.title);
+    const [title, setTitle] = useState(props.data.properties.title);
+    const [hasUpdated, setHasUpdated] = useState(false);
+    useEffect(() => {
+            const interval = setInterval(async () => {
+                const url = "/update-block"
+                const data = {id: props.data.id, title: title}
+                if (hasUpdated) {
+                    console.log("update!")
+                    // TODO: abstract this
+                    const route = "http://localhost:8000" + url
+                    try {
+                        const res = await fetch(route, {
+                            method: "PUT",
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        setHasUpdated(false);
+                        if (res.status !== 200) {
+                            throw(`Server refused! ${url}`)
+                        }
+                        console.log(`Got fetch ${url}`);
+                    } catch
+                        (error) {
+                        console.log(`Errored fetch ${url}, ${error}`);
+                    }
+                }
+
+            }, 5000);
+            return () => clearInterval(interval);
+        });
     const onChange = event => {
-        setValue(event.target.value)
+        setTitle(event.target.value);
+        setHasUpdated(true);
     }
+
     return (
         <div className='block-wrap'>
-            <input className='block' type="text" id={props.id} value={value} onChange={onChange}/>
+            <input className='block' type="text" id={props.id} value={title} onChange={onChange}/>
         </div>
     )
 }
