@@ -1,7 +1,8 @@
 import './App.css';
 import {useEffect, useState} from "react";
 import './index.css';
-import {put, useAsyncFetch} from "./useAsyncFetch";
+import {post, put, useAsyncFetch} from "./useAsyncFetch";
+import {v4 as uuidv4} from 'uuid';
 
 function App() {
     const [pageData, setPageData] = useState([]);
@@ -15,7 +16,7 @@ function App() {
     if (pageData) {
         return (
             <div className="App">
-                <PageContent dataArray={pageData}/>
+                <PageContent pageData={pageData} setPageData={setPageData}/>
             </div>
         );
     } else {
@@ -26,8 +27,8 @@ function App() {
 
 const PageContent = (props) => {
     const items = []
-    for (const [index, value] of props.dataArray.entries()) {
-        items.push(<Block key={index} data={value}/>)
+    for (const [index, value] of props.pageData.entries()) {
+        items.push(<Block key={index} data={value} pageData={props.pageData} setPageData={props.setPageData}/>)
     }
     return (<div className='p-12'>
         {items}
@@ -37,13 +38,12 @@ const PageContent = (props) => {
 const Block = (props) => {
     const [title, setTitle] = useState(props.data.properties.title);
     const [hasUpdated, setHasUpdated] = useState(false);
-    const updateInterval = 5000;
+    const updateInterval = 1000;
     useEffect(() => {
         const interval = setInterval(async () => {
             const path = "/update-block"
-            const data = {id: props.data.id, title: title}
+            const data = {uuid: props.data.uuid, title: title}
             if (hasUpdated) {
-                console.log("update!")
                 put(path, (result) => {
                     console.log(result);
                 }, (error) => {
@@ -59,9 +59,37 @@ const Block = (props) => {
         setHasUpdated(true);
     }
 
+    const onAddBlockClick = () => {
+        console.log("clicked")
+        const path = "/post-block"
+        const uuid = uuidv4();
+
+        // update pageData here, only insert in the front end, use uuid
+        let newPageData = [...props.pageData];
+        // TODO: find where to insert
+        newPageData.push({
+            uuid: uuid,
+            properties: {
+                title: ""
+            },
+        })
+        props.setPageData(newPageData);
+
+        // make call to db to insert block
+        const data = {after_uuid: props.data.uuid, uuid: uuid}
+        post(path, (result) => {
+            console.log(result);
+        }, (error) => {
+            console.log(error);
+        }, data)
+
+
+    }
+
     return (
-        <div className='block-wrap'>
-            <input className='block' type="text" id={props.id} value={title} onChange={onChange}/>
+        <div className='block-wrap flex items-center'>
+            <button className='flex-auto m-4 bg-blue-300 w-8 h-8' onClick={onAddBlockClick}>+</button>
+            <input className='block flex-auto' type="text" id={props.uuid} value={title} onChange={onChange}/>
         </div>
     )
 }

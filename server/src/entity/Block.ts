@@ -1,11 +1,15 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, PrimaryColumn} from "typeorm";
 import {BlockProperties} from "./BlockProperties";
 
 @Entity()
 export class Block {
 
-    @PrimaryGeneratedColumn()
-    id: number;
+    // @PrimaryGeneratedColumn()
+    // id: number;
+
+    // @Column()
+    @PrimaryColumn()
+    uuid: string;
 
     @OneToOne(type => BlockProperties, {
         cascade: true,

@@ -5,6 +5,7 @@ import {createConnection, ConnectionOptions} from "typeorm";
 import {Block} from "./entity/Block";
 import {BlockProperties} from "./entity/BlockProperties";
 import {root} from "./path";
+import { v4 as uuidv4 } from 'uuid';
 
 const app = Express();
 const cors = require('cors')
@@ -20,21 +21,21 @@ createConnection({
     logging: false,
     synchronize: true,
 }).then(async connection => {
-    // console.log("Cleaning up database...");
-    // await connection.createQueryBuilder().delete().from(Block).execute();
+    console.log("Cleaning up database...");
+    await connection.createQueryBuilder().delete().from(Block).execute();
 
-    // console.log("Inserting a new block into the database...");
-    // const blockProperties = new BlockProperties();
-    // blockProperties.title = "I'm the second block";
-    //
-    // const block = new Block();
-    // block.properties = blockProperties;
-    //
-    // await connection.manager.save(blockProperties);
-    // await connection.manager.save(block);
-    //
-    // console.log("Saved a new blockProperty with id: " + blockProperties.id, "title: ", blockProperties.title);
-    // console.log("Saved a new block with id: " + block.id);
+    console.log("Inserting a new block into the database...");
+    const blockProperties = new BlockProperties();
+    blockProperties.title = "I'm the second block";
+
+    const block = new Block();
+    block.properties = blockProperties;
+    block.uuid = uuidv4();
+    await connection.manager.save(blockProperties);
+    await connection.manager.save(block);
+
+    console.log("Saved a new blockProperty with id: " + blockProperties.id, "title: ", blockProperties.title);
+    console.log("Saved a new block with uuid: " + block.uuid);
 
     // let blockRepository = connection.getRepository(Block);
     // console.log("Loading blocks from the database...");
@@ -50,7 +51,7 @@ createConnection({
     app.use(cors());
 
     let blockRepository = connection.getRepository(Block);
-    let blockPropertiesRepository = connection.getRepository(BlockProperties);
+    // let blockPropertiesRepository = connection.getRepository(BlockProperties);
 
     // define a route handler for the default home page
     app.get("/page", cors(), async (req: Request, res: Response) => {
@@ -62,10 +63,25 @@ createConnection({
     app.put("/update-block", cors(), jsonParser, async (req: Request, res: Response) => {
         // TODO: handle error
         // only updates title now
-        const id = req.body.id
-        const blockToUpdate = await blockRepository.findOne(id,{relations: ["properties"]});
+        const uuid = req.body.uuid
+        const blockToUpdate = await blockRepository.findOne(uuid,{relations: ["properties"]});
         blockToUpdate.properties.title = req.body.title;
         await blockRepository.save(blockToUpdate);
+    })
+
+    app.post("/post-block", cors(), jsonParser, async (req: Request, res: Response) => {
+        // insert new block to db
+        console.log("saving new block to db...")
+        const insert_after_uuid: string = req.body.after_uuid;
+        const uuid = req.body.uuid;
+        const blockProperties = new BlockProperties();
+        blockProperties.title = "I'm the new block";
+
+        const block = new Block();
+        block.properties = blockProperties;
+        block.uuid = uuid;
+        await connection.manager.save(block);
+        console.log("finished saving new block to db")
     })
 
     app.use(function (request, response) {

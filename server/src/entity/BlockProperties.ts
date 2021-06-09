@@ -6,6 +6,7 @@ export class BlockProperties {
     @PrimaryGeneratedColumn()
     id: number;
 
+
     @Column()
     title: string;
 }

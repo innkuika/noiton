@@ -1,5 +1,5 @@
-
 import React, {useEffect} from 'react';
+
 const url = "http://localhost:8000"
 
 // A custom hook that calls fetch.
@@ -30,6 +30,17 @@ const put = (path, thenFun, catchFun, data) => {
     fetchData(path, options, thenFun, catchFun);
 }
 
+const post = (path, thenFun, catchFun, data) => {
+    const options = {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }
+    fetchData(path, options, thenFun, catchFun);
+}
+
 const get = (path, options, thenFun, catchFun) => {
     fetchData(path, {}, thenFun, catchFun);
 }
@@ -50,4 +61,4 @@ async function fetchData(path, options, thenFun, catchFun) {
     }
 }
 
-export {useAsyncFetch, put, get};
+export {useAsyncFetch, put, get, post};
