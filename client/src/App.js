@@ -1,7 +1,7 @@
 import './App.css';
 import {useEffect, useState} from "react";
 import './index.css';
-import useAsyncFetch from "./useAsyncFetch";
+import {put, useAsyncFetch} from "./useAsyncFetch";
 
 function App() {
     const [pageData, setPageData] = useState([]);
@@ -37,37 +37,23 @@ const PageContent = (props) => {
 const Block = (props) => {
     const [title, setTitle] = useState(props.data.properties.title);
     const [hasUpdated, setHasUpdated] = useState(false);
+    const updateInterval = 5000;
     useEffect(() => {
-            const interval = setInterval(async () => {
-                const url = "/update-block"
-                const data = {id: props.data.id, title: title}
-                if (hasUpdated) {
-                    console.log("update!")
-                    // TODO: abstract this
-                    const route = "http://localhost:8000" + url
-                    try {
-                        const res = await fetch(route, {
-                            method: "PUT",
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(data)
-                        });
+        const interval = setInterval(async () => {
+            const path = "/update-block"
+            const data = {id: props.data.id, title: title}
+            if (hasUpdated) {
+                console.log("update!")
+                put(path, (result) => {
+                    console.log(result);
+                }, (error) => {
+                    console.log(error);
+                }, data)
+            }
 
-                        setHasUpdated(false);
-                        if (res.status !== 200) {
-                            throw(`Server refused! ${url}`)
-                        }
-                        console.log(`Got fetch ${url}`);
-                    } catch
-                        (error) {
-                        console.log(`Errored fetch ${url}, ${error}`);
-                    }
-                }
-
-            }, 5000);
-            return () => clearInterval(interval);
-        });
+        }, updateInterval);
+        return () => clearInterval(interval);
+    });
     const onChange = event => {
         setTitle(event.target.value);
         setHasUpdated(true);
