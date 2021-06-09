@@ -4,7 +4,7 @@ node_modules/
 build/
 tmp/
 temp/
-
+data/
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,webstorm,node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,webstorm,node,react
