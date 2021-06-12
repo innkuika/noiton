@@ -3,6 +3,9 @@ import {useEffect, useState} from "react";
 import './index.css';
 import {post, put, useAsyncFetch} from "./useAsyncFetch";
 import {v4 as uuidv4} from 'uuid';
+import { Editor } from 'react-draft-wysiwyg';
+import { EditorState, ContentState } from 'draft-js';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 function App() {
     const [pageData, setPageData] = useState([]);
@@ -36,13 +39,15 @@ const PageContent = (props) => {
 }
 
 const Block = (props) => {
-    const [title, setTitle] = useState(props.data.properties.title);
+    const contentState = ContentState.createFromText(props.data.properties.title)
+    const [editorState, setEditorState] = useState(EditorState.createWithContent(contentState))
     const [hasUpdated, setHasUpdated] = useState(false);
     const updateInterval = 1000;
+    // save content every updateInterval seconds to db if there is an update
     useEffect(() => {
         const interval = setInterval(async () => {
             const path = "/update-block"
-            const data = {uuid: props.data.uuid, title: title}
+            const data = {uuid: props.data.uuid, title: editorState.getCurrentContent().getPlainText()}
             if (hasUpdated) {
                 put(path, (result) => {
                     console.log(result);
@@ -54,10 +59,6 @@ const Block = (props) => {
         }, updateInterval);
         return () => clearInterval(interval);
     });
-    const onChange = event => {
-        setTitle(event.target.value);
-        setHasUpdated(true);
-    }
 
     const onAddBlockClick = () => {
         console.log("clicked")
@@ -86,10 +87,21 @@ const Block = (props) => {
 
     }
 
+    const onEditorStateChange = (editorState) => {
+        setEditorState(editorState);
+        setHasUpdated(true);
+    }
     return (
         <div className='block-wrap flex items-center'>
             <button className='flex-auto m-4 bg-blue-300 w-8 h-8' onClick={onAddBlockClick}>+</button>
-            <input className='block flex-auto' type="text" id={props.uuid} value={title} onChange={onChange}/>
+            <Editor
+                id={props.uuid}
+                editorState={editorState}
+                toolbarClassName="toolbarClassName"
+                wrapperClassName="wrapperClassName"
+                editorClassName="editorClassName"
+                onEditorStateChange={onEditorStateChange}
+            />
         </div>
     )
 }
