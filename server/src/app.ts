@@ -24,18 +24,18 @@ createConnection({
     console.log("Cleaning up database...");
     await connection.createQueryBuilder().delete().from(Block).execute();
 
-    console.log("Inserting a new block into the database...");
-    const blockProperties = new BlockProperties();
-    blockProperties.title = "I'm the second block";
-
-    const block = new Block();
-    block.properties = blockProperties;
-    block.uuid = uuidv4();
-    await connection.manager.save(blockProperties);
-    await connection.manager.save(block);
-
-    console.log("Saved a new blockProperty with id: " + blockProperties.id, "title: ", blockProperties.title);
-    console.log("Saved a new block with uuid: " + block.uuid);
+    // console.log("Inserting a new block into the database...");
+    // const blockProperties = new BlockProperties();
+    // blockProperties.title = "I'm the second block";
+    //
+    // const block = new Block();
+    // block.properties = blockProperties;
+    // block.uuid = uuidv4();
+    // await connection.manager.save(blockProperties);
+    // await connection.manager.save(block);
+    //
+    // console.log("Saved a new blockProperty with id: " + blockProperties.id, "title: ", blockProperties.title);
+    // console.log("Saved a new block with uuid: " + block.uuid);
 
     // let blockRepository = connection.getRepository(Block);
     // console.log("Loading blocks from the database...");
@@ -75,7 +75,7 @@ createConnection({
         const insert_after_uuid: string = req.body.after_uuid;
         const uuid = req.body.uuid;
         const blockProperties = new BlockProperties();
-        blockProperties.title = "I'm the new block";
+        blockProperties.title = req.body.title;
 
         const block = new Block();
         block.properties = blockProperties;
