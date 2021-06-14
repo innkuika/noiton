@@ -28,10 +28,8 @@ const SimpleInlineToolbarEditor = (props) => {
                 const contentState = editorState.getCurrentContent()
                 const data = {uuid: props.data.uuid, title: JSON.stringify(convertToRaw(contentState))}
                 console.log("saving...")
-                put(path, (result) => {
-                    console.log("saved! ", result);
-                }, (error) => {
-                    console.log("save errored ", error);
+                put(path, () => {
+                }, () => {
                 }, data)
                 setHasUpdated(false)
             }

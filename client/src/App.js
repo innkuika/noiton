@@ -3,8 +3,8 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import './css/App.css';
 import '@draft-js-plugins/inline-toolbar/lib/plugin.css'
 import './index.css';
-import {useState} from "react";
-import {post, useAsyncFetch} from "./useAsyncFetch";
+import {useEffect, useState} from "react";
+import {post, get} from "./useAsyncFetch";
 import {v4 as uuidv4} from 'uuid';
 import {ContentState, convertToRaw} from 'draft-js';
 import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
@@ -12,33 +12,34 @@ import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
 
 function App() {
     const [pageData, setPageData] = useState([]);
-    useAsyncFetch("/page", {}, (result) => {
-        if (result.length === 0) {
-            console.log("page is empty")
-            // if there is nothing, create a empty block and push it to db
-            const path = "/post-block"
-            const uuid = uuidv4();
+    useEffect(function () {
+        get('/page', (result) => {
+            if (result.length === 0) {
+                console.log("page is empty")
+                // if there is nothing, create a empty block and push it to db
+                const path = "/post-block"
+                const uuid = uuidv4();
 
-            const contentState = ContentState.createFromText("empty page block")
+                const contentState = ContentState.createFromText("empty page block")
 
-            result.push({
-                uuid: uuid,
-                properties: {
-                    title: JSON.stringify(convertToRaw(contentState))
-                },
-            })
+                result.push({
+                    uuid: uuid,
+                    properties: {
+                        title: JSON.stringify(convertToRaw(contentState))
+                    },
+                })
 
-            // make call to db to insert block
-            const data = {after_uuid: null, uuid: uuid, title: JSON.stringify(convertToRaw(contentState))}
-            post(path, (result) => {
-                console.log(result);
-            }, (error) => {
-                console.log(error);
-            }, data)
-        }
-        setPageData(result);
-    }, (error) => {
-        console.log(error);
+                // make call to db to insert block
+                const data = {after_uuid: null, uuid: uuid, title: JSON.stringify(convertToRaw(contentState))}
+                post(path, (result) => {
+                    console.log(result);
+                }, (error) => {
+                    console.log(error);
+                }, data)
+            }
+            setPageData(result);
+        }, () => {
+        });
     }, []);
 
     return (
@@ -61,7 +62,6 @@ const PageContent = (props) => {
 
 const Block = (props) => {
     const onAddBlockClick = () => {
-        console.log("clicked")
         const path = "/post-block"
         const uuid = uuidv4();
 
@@ -80,10 +80,8 @@ const Block = (props) => {
 
         // make call to db to insert block
         const data = {after_uuid: props.data.uuid, uuid: uuid, title: title}
-        post(path, (result) => {
-            console.log(result);
-        }, (error) => {
-            console.log(error);
+        post(path, () => {
+        }, () => {
         }, data)
 
 
