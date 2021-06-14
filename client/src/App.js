@@ -1,3 +1,4 @@
+import './css/reset.css'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import './css/App.css';
 import '@draft-js-plugins/inline-toolbar/lib/plugin.css'
@@ -62,6 +63,7 @@ const PageContent = (props) => {
 }
 
 const Block = (props) => {
+    const [hasUpdated, setHasUpdated] = useState(false);
     const onAddBlockClick = () => {
         console.log("clicked")
         const path = "/post-block"
@@ -95,6 +97,8 @@ const Block = (props) => {
             <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
             <SimpleInlineToolbarEditor
                 data={props.data}
+                hasUpdated={hasUpdated}
+                setHasUpdated={setHasUpdated}
             />
         </div>
     )

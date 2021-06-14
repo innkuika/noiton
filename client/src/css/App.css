@@ -25,6 +25,9 @@
     visibility: hidden;
 }
 
+*:focus {
+    outline: 0 !important;
+}
 
 .block-wrap:hover > .add-block-button{
     visibility: visible;
