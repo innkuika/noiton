@@ -18,7 +18,7 @@ const SimpleInlineToolbarEditor = (props) => {
     }, []);
     const [hasUpdated, setHasUpdated] = useState(false);
     const [editorState, setEditorState] = useState(EditorState.createWithContent(convertFromRaw(JSON.parse(props.data.properties.title))))
-    const updateInterval = 1000;
+    const updateInterval = 500;
     // save content every updateInterval seconds to db if there is an update
     useEffect(() => {
         const interval = setInterval(async () => {
@@ -47,8 +47,9 @@ const SimpleInlineToolbarEditor = (props) => {
         editor.current?.focus();
     };
 
+    console.log("class name ", editorStyles.editor)
     return (
-        <div className={editorStyles.editor} onClick={focus}>
+        <div className={editorStyles.editor + " simple-editor"} onClick={focus}>
             <Editor
                 editorKey="SimpleInlineToolbarEditor"
                 editorState={editorState}

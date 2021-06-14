@@ -91,8 +91,8 @@ const Block = (props) => {
 
     }
     return (
-        <div className='block-wrap flex items-center'>
-            <button className='flex-auto m-4 bg-blue-300 w-8 h-8' onClick={onAddBlockClick}>+</button>
+        <div className='block-wrap'>
+            <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
             <SimpleInlineToolbarEditor
                 data={props.data}
             />

@@ -1,7 +1,9 @@
 .App {
     text-align: center;
+    font-size: large;
 }
 
+/* Block */
 .block {
     width: 100%;
     height: 56px;
@@ -11,24 +13,25 @@
     border: 0;
 }
 
-
 .block:focus {
     outline: none;
 }
 
-.block-wrap:hover {
-
+/* Add block button */
+.add-block-button {
+    margin: 14px;
+    font-size: larger;
+    color: #ABABAB;
+    visibility: hidden;
 }
 
-.wrapper-class {
-    padding: 1rem;
-    border: 1px solid #ccc;
+
+.block-wrap:hover > .add-block-button{
+    visibility: visible;
 }
-.editor-class {
-    background-color:lightgray;
-    padding: 1rem;
-    border: 1px solid #ccc;
+
+.block-wrap {
+    display: flex;
+    align-items: flex-start;
 }
-.toolbar-class {
-    display: none;
-}
+
