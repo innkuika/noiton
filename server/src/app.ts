@@ -56,17 +56,21 @@ createConnection({
     // define a route handler for the default home page
     app.get("/page", cors(), async (req: Request, res: Response) => {
         const blocks = await blockRepository.find({relations: ["properties"]})
-        console.log("Loaded blocks: ", blocks);
+        // console.log("Loaded blocks: ", blocks);
         res.send(JSON.stringify(blocks));
     });
 
     app.put("/update-block", cors(), jsonParser, async (req: Request, res: Response) => {
         // TODO: handle error
         // only updates title now
+        console.log("updating block...")
         const uuid = req.body.uuid
         const blockToUpdate = await blockRepository.findOne(uuid,{relations: ["properties"]});
         blockToUpdate.properties.title = req.body.title;
         await blockRepository.save(blockToUpdate);
+        res.status(200);
+        res.send({blockUpdated: uuid})
+        console.log("finished updating block...")
     })
 
     app.post("/post-block", cors(), jsonParser, async (req: Request, res: Response) => {
@@ -81,6 +85,8 @@ createConnection({
         block.properties = blockProperties;
         block.uuid = uuid;
         await connection.manager.save(block);
+        res.status(200);
+        res.send({blockPosted: uuid})
         console.log("finished saving new block to db")
     })
 

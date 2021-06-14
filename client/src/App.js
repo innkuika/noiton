@@ -13,7 +13,6 @@ import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
 function App() {
     const [pageData, setPageData] = useState([]);
     useAsyncFetch("/page", {}, (result) => {
-        console.log(result)
         if (result.length === 0) {
             console.log("page is empty")
             // if there is nothing, create a empty block and push it to db
@@ -42,8 +41,6 @@ function App() {
         console.log(error);
     }, []);
 
-    console.log("page data: ", pageData)
-
     return (
         <div className="App">
             <PageContent pageData={pageData} setPageData={setPageData}/>
@@ -63,7 +60,6 @@ const PageContent = (props) => {
 }
 
 const Block = (props) => {
-    const [hasUpdated, setHasUpdated] = useState(false);
     const onAddBlockClick = () => {
         console.log("clicked")
         const path = "/post-block"
@@ -97,8 +93,6 @@ const Block = (props) => {
             <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
             <SimpleInlineToolbarEditor
                 data={props.data}
-                hasUpdated={hasUpdated}
-                setHasUpdated={setHasUpdated}
             />
         </div>
     )
