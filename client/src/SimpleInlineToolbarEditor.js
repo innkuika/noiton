@@ -1,37 +1,46 @@
 import React, {
-    ReactElement,
     useEffect,
     useMemo,
     useRef,
     useState,
 } from 'react';
-import { EditorState } from 'draft-js';
-import Editor, { createEditorStateWithText } from '@draft-js-plugins/editor';
+import {convertFromRaw, convertToRaw, EditorState} from 'draft-js';
+import Editor from '@draft-js-plugins/editor';
 import createInlineToolbarPlugin from '@draft-js-plugins/inline-toolbar';
 import editorStyles from './css/editorStyle.css';
+import {put} from "./useAsyncFetch";
 
-const text =
-    'In this editor a toolbar shows up once you select part of the text …';
 
-const SimpleInlineToolbarEditor = () => {
+const SimpleInlineToolbarEditor = (props) => {
     const [plugins, InlineToolbar] = useMemo(() => {
         const inlineToolbarPlugin = createInlineToolbarPlugin();
         return [[inlineToolbarPlugin], inlineToolbarPlugin.InlineToolbar];
     }, []);
-
-    const [editorState, setEditorState] = useState(() =>
-        createEditorStateWithText('')
-    );
-
+    const [hasUpdated, setHasUpdated] = useState(false);
+    const [editorState, setEditorState] = useState(EditorState.createWithContent(convertFromRaw(JSON.parse(props.data.properties.title))))
+    const updateInterval = 1000;
+    // save content every updateInterval seconds to db if there is an update
     useEffect(() => {
-        // fixing issue with SSR https://github.com/facebook/draft-js/issues/2332#issuecomment-761573306
-        setEditorState(createEditorStateWithText(text));
-    }, []);
+        const interval = setInterval(async () => {
+            const path = "/update-block"
+            const contentState = editorState.getCurrentContent()
+            const data = {uuid: props.data.uuid, title: JSON.stringify(convertToRaw(contentState))}
+            if (hasUpdated) {
+                put(path, (result) => {
+                    console.log("saved! ", result);
+                }, (error) => {
+                    console.log("save errored ", error);
+                }, data)
+            }
 
-    const editor = useRef<Editor | null>(null);
+        }, updateInterval);
+        return () => clearInterval(interval);
+    });
 
+    const editor = useRef < Editor | null > (null);
     const onChange = (value) => {
         setEditorState(value);
+        setHasUpdated(true);
     };
 
     const focus = () => {
@@ -45,11 +54,11 @@ const SimpleInlineToolbarEditor = () => {
                 editorState={editorState}
                 onChange={onChange}
                 plugins={plugins}
-                // ref={(element) => {
-                //     editor.current = element;
-                // }}
+                wrapperClassName="wrapper-class"
+                editorClassName="editor-class"
+                toolbarClassName="toolbar-class"
             />
-            <InlineToolbar />
+            <InlineToolbar/>
         </div>
     );
 };

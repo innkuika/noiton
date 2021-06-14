@@ -2,11 +2,10 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import './css/App.css';
 import '@draft-js-plugins/inline-toolbar/lib/plugin.css'
 import './index.css';
-import {useEffect, useMemo, useRef, useState} from "react";
-import {post, put, useAsyncFetch} from "./useAsyncFetch";
+import {useState} from "react";
+import {post, useAsyncFetch} from "./useAsyncFetch";
 import {v4 as uuidv4} from 'uuid';
-import {Editor} from 'react-draft-wysiwyg';
-import {EditorState, ContentState, convertToRaw, convertFromRaw} from 'draft-js';
+import {ContentState, convertToRaw} from 'draft-js';
 import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
 
 
@@ -46,7 +45,6 @@ function App() {
 
     return (
         <div className="App">
-            <SimpleInlineToolbarEditor/>
             <PageContent pageData={pageData} setPageData={setPageData}/>
         </div>
     );
@@ -64,27 +62,6 @@ const PageContent = (props) => {
 }
 
 const Block = (props) => {
-    const [editorState, setEditorState] = useState(EditorState.createWithContent(convertFromRaw(JSON.parse(props.data.properties.title))))
-    const [hasUpdated, setHasUpdated] = useState(false);
-    const updateInterval = 1000;
-    // save content every updateInterval seconds to db if there is an update
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            const path = "/update-block"
-            const contentState = editorState.getCurrentContent()
-            const data = {uuid: props.data.uuid, title: JSON.stringify(convertToRaw(contentState))}
-            if (hasUpdated) {
-                put(path, (result) => {
-                    console.log(result);
-                }, (error) => {
-                    console.log(error);
-                }, data)
-            }
-
-        }, updateInterval);
-        return () => clearInterval(interval);
-    });
-
     const onAddBlockClick = () => {
         console.log("clicked")
         const path = "/post-block"
@@ -113,22 +90,11 @@ const Block = (props) => {
 
 
     }
-
-    const onEditorStateChange = (editorState) => {
-        console.log("edited ", editorState.getCurrentContent())
-        setEditorState(editorState);
-        setHasUpdated(true);
-    }
     return (
         <div className='block-wrap flex items-center'>
             <button className='flex-auto m-4 bg-blue-300 w-8 h-8' onClick={onAddBlockClick}>+</button>
-            <Editor
-                id={props.uuid}
-                editorState={editorState}
-                wrapperClassName="wrapper-class"
-                editorClassName="editor-class"
-                toolbarClassName="toolbar-class"
-                onEditorStateChange={onEditorStateChange}
+            <SimpleInlineToolbarEditor
+                data={props.data}
             />
         </div>
     )
