@@ -8,12 +8,14 @@ Steps to run this project:
 ## APIs
 ### GET `/page`
 
-Gets an array of `block` objects that are the direct child of the 'page'.
-For now we assume there's only one page.
+Gets an array of `block` objects that are the direct child of the `page`.
+For now we assume there's only one page, the page uuid is hardcoded.
 
 #### Arguments
 
-None
+| Argument | Description                                       |
+|----------|---------------------------------------------------|
+| uuid | The uuid of the page |
 
 #### Response object
 
