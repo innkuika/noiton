@@ -44,7 +44,7 @@ Updates the title of a `block`.
 
 ### POST `/post-block`
 
-Posts a new `block`.
+Posts a new `block` with empty content.
 
 #### Arguments
 
