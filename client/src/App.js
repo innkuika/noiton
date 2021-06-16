@@ -8,13 +8,18 @@ import {post, get} from "./useAsyncFetch";
 import {v4 as uuidv4} from 'uuid';
 import {ContentState, convertToRaw} from 'draft-js';
 import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
+import {blockType} from "./shared/util.ts";
+
 const rootPageId = "root_page"
 
 function App() {
     const [pageData, setPageData] = useState([]);
+    // we use array to handle the tree structure
+    // pros: easier to render (don't require tree-array conversion, saves memory); easy to iterate through
+    // cons: non-intuitive, need to keep track of depth
     useEffect(function () {
         get(`/page/?uuid=${rootPageId}`, (result) => {
-            if (result.length === 0) {
+            if (result.length === 1) {
                 console.log("page is empty")
                 // if there is nothing, create a empty block and push it to db
                 const path = "/post-block"
@@ -27,10 +32,20 @@ function App() {
                     properties: {
                         title: JSON.stringify(convertToRaw(contentState))
                     },
+                    type: blockType.text,
+                    parent: rootPageId,
+                    content: []
                 })
 
                 // make call to db to insert block
-                const data = {after_uuid: null, uuid: uuid, title: JSON.stringify(convertToRaw(contentState))}
+                const data = {
+                    after_uuid: null,
+                    uuid: uuid,
+                    title: JSON.stringify(convertToRaw(contentState)),
+                    type: blockType.text,
+                    parent: rootPageId,
+                }
+
                 post(path, (result) => {
                     console.log(result);
                 }, (error) => {
@@ -75,11 +90,20 @@ const Block = (props) => {
             properties: {
                 title: title
             },
+            type: blockType.text,
+            parent: rootPageId,
+            content: []
         })
         props.setPageData(newPageData);
 
         // make call to db to insert block
-        const data = {after_uuid: props.data.uuid, uuid: uuid, title: title}
+        const data = {
+            after_uuid: props.data.uuid,
+            uuid: uuid,
+            title: title,
+            type: blockType.text,
+            parent: rootPageId,
+        }
         post(path, () => {
         }, () => {
         }, data)

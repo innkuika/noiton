@@ -5,8 +5,8 @@ import {createConnection, ConnectionOptions} from "typeorm";
 import {Block} from "./entity/Block";
 import {BlockProperties} from "./entity/BlockProperties";
 import {root} from "./util/path";
-import {blockType, quickTitle} from "../../shared/util/util";
-import {LevelOrderTraversal} from "./treeOperations";
+import {blockType, quickTitle} from "../../client/src/shared/util";
+import {depthFirstTraversal} from "./treeOperations";
 import {v4 as uuidv4} from 'uuid';
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -74,7 +74,7 @@ createConnection({
 
     app.get("/page", cors(), async (req: Request, res: Response) => {
         const pageUuid = req.query.uuid as string
-        let blocks = await LevelOrderTraversal(pageUuid, blockRepository)
+        let blocks = await depthFirstTraversal(pageUuid, blockRepository)
 
         // console.log("Loaded blocks: ", blocks);
         res.send(JSON.stringify(blocks));
