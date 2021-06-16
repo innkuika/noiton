@@ -119,7 +119,6 @@ createConnection({
 
         if (insert_after_uuid === null || parentContent.length === 0) {
             // it's the first child
-            console.log("inserted backend!")
             newContent.unshift(uuid)
         } else {
             for(let i = 0; i < parentContent.length; i++){

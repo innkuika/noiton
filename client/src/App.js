@@ -44,11 +44,7 @@ function App() {
                     parent: rootPageId,
                 }
 
-                post(path, (result) => {
-                    console.log(result);
-                }, (error) => {
-                    console.log(error);
-                }, data)
+                post(path, () => {}, () => {}, data)
             }
             setPageData(result);
         }, () => {
