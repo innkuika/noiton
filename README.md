@@ -52,7 +52,7 @@ Posts a new `block` with empty content.
 |----------|---------------------------------------------------|
 | uuid | The uuid of the block to be posted (generated in frontend) |
 | type | The type of the block |
-| after_uuid | The uuid of the block that goes before the new block |
+| after_uuid | The uuid of the block that goes before the new block, `null` if it's the first child of parent |
 | parent | The uuid of the block's parent |
 | title | The title of the new block |
 
