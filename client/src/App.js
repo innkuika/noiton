@@ -8,12 +8,12 @@ import {post, get} from "./useAsyncFetch";
 import {v4 as uuidv4} from 'uuid';
 import {ContentState, convertToRaw} from 'draft-js';
 import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
-
+const rootPageId = "root_page"
 
 function App() {
     const [pageData, setPageData] = useState([]);
     useEffect(function () {
-        get('/page', (result) => {
+        get(`/page/?uuid=${rootPageId}`, (result) => {
             if (result.length === 0) {
                 console.log("page is empty")
                 // if there is nothing, create a empty block and push it to db

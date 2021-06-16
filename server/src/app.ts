@@ -4,16 +4,18 @@ import "reflect-metadata";
 import {createConnection, ConnectionOptions} from "typeorm";
 import {Block} from "./entity/Block";
 import {BlockProperties} from "./entity/BlockProperties";
-import {root} from "./path";
-import { v4 as uuidv4 } from 'uuid';
+import {root} from "./util/path";
+import {blockType, quickTitle} from "../../shared/util/util";
+import {LevelOrderTraversal} from "./treeOperations";
+import {v4 as uuidv4} from 'uuid';
+const bodyParser = require('body-parser')
+const cors = require('cors')
 
 const app = Express();
-const cors = require('cors')
-const bodyParser = require('body-parser')
-// create application/json parser
-const jsonParser = bodyParser.json()
+const jsonParser = bodyParser.json() // create application/json parser
 const port = 8000; // default port to listen
-console.log("path: ", `${root}/data/database.sqlite`)
+const rootPageId = "root_page" // id of root page
+
 createConnection({
     type: "sqlite",
     database: `${root}/data/database.sqlite`,
@@ -24,18 +26,34 @@ createConnection({
     console.log("Cleaning up database...");
     await connection.createQueryBuilder().delete().from(Block).execute();
 
-    // console.log("Inserting a new block into the database...");
-    // const blockProperties = new BlockProperties();
-    // blockProperties.title = "I'm the second block";
-    //
-    // const block = new Block();
-    // block.properties = blockProperties;
-    // block.uuid = uuidv4();
-    // await connection.manager.save(blockProperties);
-    // await connection.manager.save(block);
-    //
-    // console.log("Saved a new blockProperty with id: " + blockProperties.id, "title: ", blockProperties.title);
-    // console.log("Saved a new block with uuid: " + block.uuid);
+    console.log("Inserting block to db")
+    const block1id = uuidv4();
+    const blockProperties1 = new BlockProperties();
+    blockProperties1.title =  quickTitle("child block")
+    const block1 = new Block();
+    block1.properties = blockProperties1;
+    block1.uuid = block1id
+    block1.type = blockType.text;
+    block1.content = []
+    block1.parent = ""
+    await connection.manager.save(block1);
+
+
+    console.log("Creating the root page...");
+    const blockProperties = new BlockProperties();
+    blockProperties.title =  quickTitle("root page")
+
+    const block = new Block();
+    block.properties = blockProperties;
+    block.uuid = rootPageId;
+    block.type = blockType.page;
+    block.content = [block1id]
+    block.parent = ""
+    await connection.manager.save(block);
+
+    console.log("Saved a new blockProperty with id: " + blockProperties.id, "title: ", blockProperties.title);
+    console.log("Saved a new block with uuid: " + block.uuid);
+
 
     // let blockRepository = connection.getRepository(Block);
     // console.log("Loading blocks from the database...");
@@ -53,9 +71,11 @@ createConnection({
     let blockRepository = connection.getRepository(Block);
     // let blockPropertiesRepository = connection.getRepository(BlockProperties);
 
-    // define a route handler for the default home page
+
     app.get("/page", cors(), async (req: Request, res: Response) => {
-        const blocks = await blockRepository.find({relations: ["properties"]})
+        const pageUuid = req.query.uuid as string
+        let blocks = await LevelOrderTraversal(pageUuid, blockRepository)
+
         // console.log("Loaded blocks: ", blocks);
         res.send(JSON.stringify(blocks));
     });
@@ -65,11 +85,11 @@ createConnection({
         // only updates title now
         console.log("updating block...")
         const uuid = req.body.uuid
-        const blockToUpdate = await blockRepository.findOne(uuid,{relations: ["properties"]});
+        const blockToUpdate = await blockRepository.findOne(uuid, {relations: ["properties"]});
         blockToUpdate.properties.title = req.body.title;
         await blockRepository.save(blockToUpdate);
         res.status(200);
-        res.send({blockUpdated: uuid})
+        res.send({block_updated: uuid})
         console.log("finished updating block...")
     })
 
@@ -78,6 +98,8 @@ createConnection({
         console.log("saving new block to db...")
         const insert_after_uuid: string = req.body.after_uuid;
         const uuid = req.body.uuid;
+        const type = req.body.type;
+        const parent = req.body.type;
         const blockProperties = new BlockProperties();
         blockProperties.title = req.body.title;
 
@@ -86,7 +108,7 @@ createConnection({
         block.uuid = uuid;
         await connection.manager.save(block);
         res.status(200);
-        res.send({blockPosted: uuid})
+        res.send({block_posted: uuid})
         console.log("finished saving new block to db")
     })
 

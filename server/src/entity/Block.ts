@@ -3,13 +3,14 @@ import {BlockProperties} from "./BlockProperties";
 
 @Entity()
 export class Block {
-
-    // @PrimaryGeneratedColumn()
-    // id: number;
-
-    // @Column()
     @PrimaryColumn()
     uuid: string;
+
+    @Column()
+    type: string;
+
+    @Column()
+    parent: string
 
     @OneToOne(type => BlockProperties, {
         cascade: true,
@@ -17,6 +18,8 @@ export class Block {
     @JoinColumn()
     properties: BlockProperties;
 
-    // @Column("array")
-    // content: number;
+    @Column("simple-array")
+    content: string[];
+
+    p
 }
