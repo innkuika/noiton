@@ -24,9 +24,7 @@ function App() {
                 // if there is nothing, create a empty block and push it to db
                 const path = "/post-block"
                 const uuid = uuidv4();
-
                 const contentState = ContentState.createFromText("empty page block")
-
                 result.push({
                     uuid: uuid,
                     properties: {
@@ -68,7 +66,7 @@ function App() {
 const PageContent = (props) => {
     const items = []
     for (const [index, value] of props.pageData.entries()) {
-        items.push(<Block key={index} data={value} pageData={props.pageData} setPageData={props.setPageData}/>)
+        items.push(<Block key={value.uuid} data={value} pageData={props.pageData} setPageData={props.setPageData}/>)
     }
     return (<div className='p-12'>
         {items}
@@ -79,26 +77,35 @@ const Block = (props) => {
     const onAddBlockClick = () => {
         const path = "/post-block"
         const uuid = uuidv4();
+        const insert_after_uuid = props.data.uuid
 
         // update pageData here, only insert in the front end, use uuid
         let newPageData = [...props.pageData];
-        // TODO: find where to insert
         const contentState = ContentState.createFromText("new block")
         const title = JSON.stringify(convertToRaw(contentState))
-        newPageData.push({
-            uuid: uuid,
-            properties: {
-                title: title
-            },
-            type: blockType.text,
-            parent: rootPageId,
-            content: []
-        })
+
+        for (let i = 0; i < props.pageData.length; i++) {
+            if (insert_after_uuid === props.pageData[i].uuid) {
+                // spice won't throw even i+1 > props.pageData.length
+                newPageData.splice(i + 1, 0,
+                    {
+                        uuid: uuid,
+                        properties: {
+                            title: title
+                        },
+                        type: blockType.text,
+                        parent: rootPageId,
+                        content: []
+                    })
+                break
+            }
+        }
+
         props.setPageData(newPageData);
 
         // make call to db to insert block
         const data = {
-            after_uuid: props.data.uuid,
+            after_uuid: insert_after_uuid,
             uuid: uuid,
             title: title,
             type: blockType.text,
@@ -107,8 +114,6 @@ const Block = (props) => {
         post(path, () => {
         }, () => {
         }, data)
-
-
     }
     return (
         <div className='block-wrap'>

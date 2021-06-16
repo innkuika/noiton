@@ -26,17 +26,17 @@ createConnection({
     console.log("Cleaning up database...");
     await connection.createQueryBuilder().delete().from(Block).execute();
 
-    console.log("Inserting block to db")
-    const block1id = uuidv4();
-    const blockProperties1 = new BlockProperties();
-    blockProperties1.title =  quickTitle("child block")
-    const block1 = new Block();
-    block1.properties = blockProperties1;
-    block1.uuid = block1id
-    block1.type = blockType.text;
-    block1.content = []
-    block1.parent = ""
-    await connection.manager.save(block1);
+    // console.log("Inserting block to db")
+    // const block1id = uuidv4();
+    // const blockProperties1 = new BlockProperties();
+    // blockProperties1.title =  quickTitle("child block")
+    // const block1 = new Block();
+    // block1.properties = blockProperties1;
+    // block1.uuid = block1id
+    // block1.type = blockType.text;
+    // block1.content = []
+    // block1.parent = ""
+    // await connection.manager.save(block1);
 
 
     console.log("Creating the root page...");
@@ -47,7 +47,8 @@ createConnection({
     block.properties = blockProperties;
     block.uuid = rootPageId;
     block.type = blockType.page;
-    block.content = [block1id]
+    // block.content = [block1id]
+    block.content = []
     block.parent = ""
     await connection.manager.save(block);
 
@@ -99,17 +100,41 @@ createConnection({
         const insert_after_uuid: string = req.body.after_uuid;
         const uuid = req.body.uuid;
         const type = req.body.type;
-        const parent = req.body.type;
+        const parentUuid = req.body.parent;
         const blockProperties = new BlockProperties();
         blockProperties.title = req.body.title;
 
         const block = new Block();
         block.properties = blockProperties;
         block.uuid = uuid;
+        block.type = type
+        block.parent = parentUuid
+        block.content = []
         await connection.manager.save(block);
+
+        // find parent and add to parent's content
+        const parentBlock = await blockRepository.findOne(parentUuid)
+        const parentContent = parentBlock.content
+        let newContent = [...parentContent]
+
+        if (insert_after_uuid === null || parentContent.length === 0) {
+            // it's the first child
+            console.log("inserted backend!")
+            newContent.unshift(uuid)
+        } else {
+            for(let i = 0; i < parentContent.length; i++){
+                if (insert_after_uuid === parentContent[i]){
+                    // spice won't throw even i+1 > parentContent.length
+                    newContent.splice(i+1, 0, uuid)
+                    break
+                }
+            }
+        }
+
+        parentBlock.content = newContent
+        await connection.manager.save(parentBlock);
         res.status(200);
         res.send({block_posted: uuid})
-        console.log("finished saving new block to db")
     })
 
     app.use(function (request, response) {
