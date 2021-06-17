@@ -51,18 +51,41 @@ const SimpleInlineToolbarEditor = (props) => {
         editor.current?.focus();
     };
 
-    function myBlockStyleFn() {
+    const myBlockStyleFn = () => {
         if (props.root) {
-            return 'header-one';
+            return 'header-zero';
         }
     }
 
+    const editorClassName = () => {
+        let names = [editorStyles.editor, "simple-editor"]
+        if(props.root) {
+            names.push("root-page-block")
+        }
+        return names.join(" ")
+    }
+
+    const handleEnterKeyDown = (event) => {
+        console.log('Enter key down!')
+        // get second block in current content state
+        // delete it
+        // create new block using it
+    }
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            handleEnterKeyDown(event)
+        }
+    }
+
+
     return (
-        <div className={editorStyles.editor + " simple-editor"} onClick={focus}>
+        <div className={editorClassName()} onClick={focus} onKeyDown={handleKeyDown}>
             <Editor
                 editorKey="SimpleInlineToolbarEditor"
                 editorState={editorState}
                 onChange={onChange}
+                placeholder={props.root? "Untitled" : "Start typing"}
                 wrapperClassName="wrapper-class"
                 editorClassName="editor-class"
                 toolbarClassName="toolbar-class"

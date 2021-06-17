@@ -39,8 +39,12 @@
 }
 
 /* Text Style */
-.header-one {
+.header-zero {
     font-size: xxx-large;
     font-weight: bold;
 
+}
+
+.root-page-block > .DraftEditor-root > .public-DraftEditorPlaceholder-root {
+    font-size: xxx-large;
 }

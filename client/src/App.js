@@ -9,6 +9,7 @@ import {v4 as uuidv4} from 'uuid';
 import {ContentState, convertToRaw} from 'draft-js';
 import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
 import {blockType} from "./shared/util.ts";
+import {postBlock} from "./postBlock";
 
 const rootPageId = "root_page"
 
@@ -20,34 +21,11 @@ function App() {
     useEffect(function () {
         get(`/page/?uuid=${rootPageId}`, (result) => {
             if (result.length === 1) {
-                console.log("page is empty")
                 // if there is nothing, create a empty block and push it to db
-                const path = "/post-block"
-                const uuid = uuidv4();
-                const contentState = ContentState.createFromText("empty page block")
-                result.push({
-                    uuid: uuid,
-                    depth: 1,
-                    properties: {
-                        title: JSON.stringify(convertToRaw(contentState))
-                    },
-                    type: blockType.text,
-                    parent: rootPageId,
-                    content: []
-                })
-
-                // make call to db to insert block
-                const data = {
-                    after_uuid: null,
-                    uuid: uuid,
-                    title: JSON.stringify(convertToRaw(contentState)),
-                    type: blockType.text,
-                    parent: rootPageId,
-                }
-
-                post(path, () => {}, () => {}, data)
+                postBlock(null, result, setPageData, 1, rootPageId)
+            } else {
+                setPageData(result);
             }
-            setPageData(result);
         }, () => {
         });
     }, []);
@@ -71,47 +49,8 @@ const PageContent = (props) => {
 }
 
 const Block = (props) => {
-    const onAddBlockClick = () => {
-        const path = "/post-block"
-        const uuid = uuidv4();
-        const insert_after_uuid = props.data.uuid
-
-        // update pageData here, only insert in the front end, use uuid
-        let newPageData = [...props.pageData];
-        const contentState = ContentState.createFromText("new block")
-        const title = JSON.stringify(convertToRaw(contentState))
-
-        for (let i = 0; i < props.pageData.length; i++) {
-            if (insert_after_uuid === props.pageData[i].uuid) {
-                // spice won't throw even i+1 > props.pageData.length
-                newPageData.splice(i + 1, 0,
-                    {
-                        uuid: uuid,
-                        depth: props.data.depth,
-                        properties: {
-                            title: title
-                        },
-                        type: blockType.text,
-                        parent: rootPageId,
-                        content: []
-                    })
-                break
-            }
-        }
-
-        props.setPageData(newPageData);
-
-        // make call to db to insert block
-        const data = {
-            after_uuid: insert_after_uuid,
-            uuid: uuid,
-            title: title,
-            type: blockType.text,
-            parent: rootPageId,
-        }
-        post(path, () => {
-        }, () => {
-        }, data)
+    const onAddBlockClick = async () => {
+        postBlock(props.data.uuid, props.pageData, props.setPageData, props.data.depth, rootPageId)
     }
     if (props.root) {
         return (

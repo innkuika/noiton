@@ -111,6 +111,8 @@ createConnection({
         block.parent = parentUuid
         block.content = []
         await connection.manager.save(block);
+        console.log("saved block: ", block)
+        console.log("saved block property: ", block.properties)
 
         // find parent and add to parent's content
         const parentBlock = await blockRepository.findOne(parentUuid)
