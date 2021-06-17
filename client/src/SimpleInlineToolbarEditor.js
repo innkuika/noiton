@@ -51,18 +51,25 @@ const SimpleInlineToolbarEditor = (props) => {
         editor.current?.focus();
     };
 
+    function myBlockStyleFn() {
+        if (props.root) {
+            return 'header-one';
+        }
+    }
+
     return (
         <div className={editorStyles.editor + " simple-editor"} onClick={focus}>
             <Editor
                 editorKey="SimpleInlineToolbarEditor"
                 editorState={editorState}
                 onChange={onChange}
-                plugins={plugins}
                 wrapperClassName="wrapper-class"
                 editorClassName="editor-class"
                 toolbarClassName="toolbar-class"
+                blockStyleFn={myBlockStyleFn}
+                plugins={props.root ? undefined : plugins}
             />
-            <InlineToolbar/>
+            {props.root ? undefined : <InlineToolbar/>}
         </div>
     );
 };

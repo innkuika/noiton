@@ -27,6 +27,7 @@ function App() {
                 const contentState = ContentState.createFromText("empty page block")
                 result.push({
                     uuid: uuid,
+                    depth: 1,
                     properties: {
                         title: JSON.stringify(convertToRaw(contentState))
                     },
@@ -62,7 +63,7 @@ function App() {
 const PageContent = (props) => {
     const items = []
     for (const [index, value] of props.pageData.entries()) {
-        items.push(<Block key={value.uuid} data={value} pageData={props.pageData} setPageData={props.setPageData}/>)
+        items.push(<Block key={value.uuid} data={value} pageData={props.pageData} setPageData={props.setPageData} root={value.depth === 0}/>)
     }
     return (<div className='p-12'>
         {items}
@@ -86,6 +87,7 @@ const Block = (props) => {
                 newPageData.splice(i + 1, 0,
                     {
                         uuid: uuid,
+                        depth: props.data.depth,
                         properties: {
                             title: title
                         },
@@ -111,14 +113,25 @@ const Block = (props) => {
         }, () => {
         }, data)
     }
-    return (
-        <div className='block-wrap'>
-            <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
-            <SimpleInlineToolbarEditor
-                data={props.data}
-            />
-        </div>
-    )
+    if (props.root) {
+        return (
+            <div className='block-wrap'>
+                <SimpleInlineToolbarEditor
+                    data={props.data}
+                    root={true}
+                />
+            </div>
+        )
+    } else {
+        return (
+            <div className='block-wrap'>
+                <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
+                <SimpleInlineToolbarEditor
+                    data={props.data}
+                />
+            </div>
+        )
+    }
 }
 
 export default App;

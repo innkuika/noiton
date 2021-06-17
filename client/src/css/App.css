@@ -38,3 +38,9 @@
     align-items: flex-start;
 }
 
+/* Text Style */
+.header-one {
+    font-size: xxx-large;
+    font-weight: bold;
+
+}
