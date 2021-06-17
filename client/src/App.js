@@ -4,11 +4,8 @@ import './css/App.css';
 import '@draft-js-plugins/inline-toolbar/lib/plugin.css'
 import './index.css';
 import {useEffect, useState} from "react";
-import {post, get} from "./useAsyncFetch";
-import {v4 as uuidv4} from 'uuid';
-import {ContentState, convertToRaw} from 'draft-js';
+import {get} from "./useAsyncFetch";
 import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
-import {blockType} from "./shared/util.ts";
 import {postBlock} from "./postBlock";
 
 const rootPageId = "root_page"
@@ -40,8 +37,9 @@ function App() {
 
 const PageContent = (props) => {
     const items = []
-    for (const [index, value] of props.pageData.entries()) {
-        items.push(<Block key={value.uuid} data={value} pageData={props.pageData} setPageData={props.setPageData} root={value.depth === 0}/>)
+    for (const [, value] of props.pageData.entries()) {
+        items.push(<Block key={value.uuid} data={value} pageData={props.pageData} setPageData={props.setPageData}
+                          root={value.depth === 0}/>)
     }
     return (<div className='p-12'>
         {items}
@@ -52,25 +50,17 @@ const Block = (props) => {
     const onAddBlockClick = async () => {
         postBlock(props.data.uuid, props.pageData, props.setPageData, props.data.depth, rootPageId)
     }
-    if (props.root) {
-        return (
-            <div className='block-wrap'>
-                <SimpleInlineToolbarEditor
-                    data={props.data}
-                    root={true}
-                />
-            </div>
-        )
-    } else {
-        return (
-            <div className='block-wrap'>
+    return (
+        <div className='block-wrap'>
+            {props.root ? undefined :
                 <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
-                <SimpleInlineToolbarEditor
-                    data={props.data}
-                />
-            </div>
-        )
-    }
+            }
+            <SimpleInlineToolbarEditor
+                data={props.data}
+                root={props.root}
+            />
+        </div>
+    )
 }
 
 export default App;
