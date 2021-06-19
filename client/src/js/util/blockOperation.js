@@ -1,7 +1,7 @@
 import {v4 as uuidv4} from 'uuid';
 import {ContentState, convertToRaw} from "draft-js";
-import {blockType} from "./shared/util";
-import {post} from "./useAsyncFetch";
+import {blockType} from "../../shared/util";
+import {post} from "./httpMethod";
 
 const postBlock = (insertAfterUuid, pageData, setPageData, depth, parentUuid) => {
     const path = "/post-block"

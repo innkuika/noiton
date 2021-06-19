@@ -8,9 +8,9 @@ import {convertFromRaw, convertToRaw, EditorState} from 'draft-js';
 import Draft from 'draft-js'
 import Editor from '@draft-js-plugins/editor';
 import createInlineToolbarPlugin from '@draft-js-plugins/inline-toolbar';
-import editorStyles from './css/editorStyle.css';
-import {put} from "./useAsyncFetch";
-import {getBlockIndex} from "./postBlock";
+import editorStyles from '../../css/editorStyle.css';
+import {put} from "../util/httpMethod";
+import {getBlockIndex} from "../util/blockOperation";
 
 
 const SimpleInlineToolbarEditor = (props) => {

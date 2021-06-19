@@ -1,12 +1,12 @@
-import './css/reset.css'
+import '../css/reset.css'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import './css/App.css';
+import '../css/App.css';
 import '@draft-js-plugins/inline-toolbar/lib/plugin.css'
-import './index.css';
+import '../css/index.css';
 import {useEffect, useState} from "react";
-import {get} from "./useAsyncFetch";
-import SimpleInlineToolbarEditor from './SimpleInlineToolbarEditor'
-import {postBlock} from "./postBlock";
+import {get} from "./util/httpMethod";
+import SimpleInlineToolbarEditor from './component/SimpleInlineToolbarEditor'
+import {postBlock} from "./util/blockOperation";
 
 const rootPageId = "root_page"
 

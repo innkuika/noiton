@@ -6,7 +6,7 @@ import {Block} from "./entity/Block";
 import {BlockProperties} from "./entity/BlockProperties";
 import {root} from "./util/path";
 import {blockType, quickTitle} from "../../client/src/shared/util";
-import {depthFirstTraversal} from "./treeOperations";
+import {depthFirstTraversal} from "./util/treeOperations";
 import {v4 as uuidv4} from 'uuid';
 
 const bodyParser = require('body-parser')
@@ -71,8 +71,6 @@ createConnection({
     app.use(cors());
 
     let blockRepository = connection.getRepository(Block);
-    // let blockPropertiesRepository = connection.getRepository(BlockProperties);
-
 
     app.get("/page", cors(), async (req: Request, res: Response) => {
         const pageUuid = req.query.uuid as string
@@ -108,7 +106,6 @@ createConnection({
         console.log("finished updating block...")
     })
 
-
     app.put("/move-block", cors(), jsonParser, async (req: Request, res: Response) => {
         console.log("moving block...")
         const {fromUuid, toUuid, moveUuid, fromUuidContent, toUuidContent} = req.body
@@ -122,7 +119,6 @@ createConnection({
         res.send({block_moved: moveUuid})
         console.log("finished moving block...")
     })
-
 
     app.post("/post-block", cors(), jsonParser, async (req: Request, res: Response) => {
         // insert new block to db

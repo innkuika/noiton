@@ -1,4 +1,4 @@
-import {Block} from "./entity/Block";
+import {Block} from "../entity/Block";
 const depthFirstTraversal = async (root: string, blockRepository) => {
     let blocks = []
     if (root === null) {

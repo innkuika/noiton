@@ -1,5 +1,3 @@
-
-
 const url = "http://localhost:8000"
 
 const put = (path, thenFun, catchFun, data) => {
