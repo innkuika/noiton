@@ -72,22 +72,28 @@ const SimpleInlineToolbarEditor = (props) => {
         let index = getBlockIndex(props.pageData, props.data.uuid)
         if (index !== null && index > 1) {
             // check the depth of block before it
-            let blockBefore = props.pageData[index - 1]
+            let newPageData = [...props.pageData]
+            let blockBefore = newPageData[index - 1]
             let blockBeforeDepth = blockBefore.depth
-            if (blockBeforeDepth >= props.data.depth) {
+            const blockDepth = props.data.depth
+            if (blockBeforeDepth >= blockDepth) {
                 // valid operation, handle tab
                 // update depth in front end
-                let newPageData = [...props.pageData]
-                const updatedBlockDepth = props.data.depth + 1
-                // todo: remove current block from original parent
+                const updatedBlockDepth = blockDepth + 1
+                // remove current block from original parent
                 const parentUuid = newPageData[index].parent
                 const parent = newPageData[getBlockIndex(newPageData, parentUuid)]
                 const blockParentContentIndex = parent.content.indexOf(props.data.uuid)
+                console.log("parent content before splice: ", parent.content)
+                console.log("index in parent content: ", blockParentContentIndex)
+
                 if (blockParentContentIndex !== -1) {
                     parent.content.splice(blockParentContentIndex, 1);
+                    console.log("parent content after splice: ", parent.content)
+
                 }
 
-                // todo: add block to new parent
+                // add block to new parent
                 // figure out new parent
                 let newParentUuid = null
                 if (blockBeforeDepth === updatedBlockDepth) {
@@ -102,32 +108,34 @@ const SimpleInlineToolbarEditor = (props) => {
                     }
                 } else if (blockBeforeDepth > updatedBlockDepth) {
                     // traverse backwards in the array from where the block currently is,
-                    // the first block with smaller depth is new parent
-                    // OR the first block's parent with the same depth is new parent
-                    // whichever comes first
+                    // the first block's parent with the same depth is new parent
                     for (let i = index - 1; i > 0; i--) {
-                        if (props.pageData[i].depth < updatedBlockDepth) {
-                            newParentUuid = props.pageData[i].uuid
-                            break
-                        }
-                        if (props.pageData[i].depth === updatedBlockDepth) {
-                            newParentUuid = props.pageData[i].parent
-                            break
-                        }
-                    }
-
-                    const newParent = props.pageData[getBlockIndex(props.pageData, newParentUuid)]
-                    for (let i = 0; i < newParent.content.length; i++) {
-                        if (newParent.content[i] === blockBefore.uuid) {
-                            newParent.content.splice(i + 1, 0, props.data.uuid)
+                        if (newPageData[i].depth === updatedBlockDepth) {
+                            newParentUuid = newPageData[i].parent
+                            const contentBlockBeforeUuid = newPageData[i].uuid
+                            const newParent = newPageData[getBlockIndex(props.pageData, newParentUuid)]
+                            for (let i = 0; i < newParent.content.length; i++) {
+                                if (newParent.content[i] === contentBlockBeforeUuid) {
+                                    newParent.content.splice(i + 1, 0, props.data.uuid)
+                                    break
+                                }
+                            }
                             break
                         }
                     }
-
                 } else {
                     // block before becomes the new parent, block becomes first child
                     newParentUuid = blockBefore.uuid
                     blockBefore.content.splice(0, 0, props.data.uuid)
+                }
+
+                // update depth of all the content(children)
+                for (let i = index + 1; i < newPageData.length; i++) {
+                    if (blockDepth < newPageData[i].depth) {
+                        newPageData[i].depth += 1
+                    } else {
+                        break
+                    }
                 }
 
                 newPageData[index].depth = updatedBlockDepth
@@ -135,10 +143,8 @@ const SimpleInlineToolbarEditor = (props) => {
                 props.setPageData(newPageData)
 
                 console.log("new page data: ", newPageData)
-                console.log("new parent uuid: ", newParentUuid)
-                console.log("new parent content: ", props.pageData[getBlockIndex(newPageData, newParentUuid)].content)
 
-                // todo: make call to backend
+                // make call to backend
                 const path = "/move-block"
                 const data = {
                     fromUuid: parentUuid,
@@ -147,6 +153,8 @@ const SimpleInlineToolbarEditor = (props) => {
                     fromUuidContent: parent.content,
                     toUuidContent: props.pageData[getBlockIndex(newPageData, newParentUuid)].content
                 }
+
+                console.log("data: ", data)
                 put(path, () => {
                 }, () => {
                 }, data)
@@ -167,7 +175,6 @@ const SimpleInlineToolbarEditor = (props) => {
 
         // move cursor to beginning of the new block
     }
-
 
     function keyBindingFn(event) {
         if (event.key === 'Enter') {
@@ -191,8 +198,6 @@ const SimpleInlineToolbarEditor = (props) => {
         return 'not-handled'
     }
 
-
-    //onKeyDown={handleKeyDown}
     return (
         <div className={editorClassName()} onClick={focus}>
             <Editor

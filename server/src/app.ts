@@ -86,15 +86,17 @@ createConnection({
         // TODO: handle error
         // const uuid = req.body.uuid
         const blockToUpdate = await blockRepository.findOne(uuid, {relations: ["properties"]});
-        if (title === undefined) {
+        if (title !== undefined) {
             blockToUpdate.properties.title = title;
         }
-        if (parent === undefined) {
+        if (parent !== undefined) {
             blockToUpdate.parent = parent;
         }
-        if (content === undefined) {
+        if (content !== undefined) {
             blockToUpdate.content = content
         }
+
+        console.log('updated block: ', blockToUpdate)
         await blockRepository.save(blockToUpdate);
     }
 
@@ -110,6 +112,7 @@ createConnection({
     app.put("/move-block", cors(), jsonParser, async (req: Request, res: Response) => {
         console.log("moving block...")
         const {fromUuid, toUuid, moveUuid, fromUuidContent, toUuidContent} = req.body
+        console.log(fromUuid, toUuid, moveUuid, fromUuidContent, toUuidContent)
 
         await updateBlock(fromUuid, undefined, undefined, fromUuidContent, res)
         await updateBlock(toUuid, undefined, undefined, toUuidContent, res)
@@ -123,8 +126,7 @@ createConnection({
 
     app.post("/post-block", cors(), jsonParser, async (req: Request, res: Response) => {
         // insert new block to db
-        console.log("saving new block to db...")
-        const {uuid, type, parent, after_uuid} = req.body
+        const {uuid, type, parent, afterUuid, newParentContent} = req.body
         const blockProperties = new BlockProperties();
         blockProperties.title = req.body.title;
 
@@ -138,23 +140,7 @@ createConnection({
 
         // find parent and add to parent's content
         const parentBlock = await blockRepository.findOne(parent)
-        const parentContent = parentBlock.content
-        let newContent = [...parentContent]
-
-        if (after_uuid === null || parentContent.length === 0) {
-            // it's the first child
-            newContent.unshift(uuid)
-        } else {
-            for (let i = 0; i < parentContent.length; i++) {
-                if (after_uuid === parentContent[i]) {
-                    // spice won't throw even i+1 > parentContent.length
-                    newContent.splice(i + 1, 0, uuid)
-                    break
-                }
-            }
-        }
-
-        parentBlock.content = newContent
+        parentBlock.content = newParentContent
         await connection.manager.save(parentBlock);
         res.status(200);
         res.send({block_posted: uuid})

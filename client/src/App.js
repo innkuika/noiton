@@ -49,7 +49,7 @@ const PageContent = (props) => {
 const Block = (props) => {
     const depth = props.data.depth
     const onAddBlockClick = async () => {
-        postBlock(props.data.uuid, props.pageData, props.setPageData, props.data.depth, rootPageId)
+        postBlock(props.data.uuid, props.pageData, props.setPageData, props.data.depth, props.data.parent)
     }
     const indentationPadding = 20
     return (

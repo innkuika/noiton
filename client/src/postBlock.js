@@ -22,6 +22,26 @@ const postBlock = (insertAfterUuid, pageData, setPageData, depth, parentUuid) =>
         content: []
     }
 
+    // add block to parent content
+    const parent = getBlockByUuid(newPageData, parentUuid)
+    const parentContent = parent.content
+
+    let newContent = [...parentContent]
+
+    if (insertAfterUuid === null || parentContent.length === 0) {
+        // it's the first child
+        newContent.unshift(uuid)
+    } else {
+        for (let i = 0; i < parentContent.length; i++) {
+            if (insertAfterUuid === parentContent[i]) {
+                // spice won't throw even i+1 > parentContent.length
+                newContent.splice(i + 1, 0, uuid)
+                break
+            }
+        }
+    }
+    parent.content = newContent
+
     if (insertAfterUuid === null) {
         newPageData.splice(1, 0, frontendBlockData)
     } else {
@@ -35,14 +55,16 @@ const postBlock = (insertAfterUuid, pageData, setPageData, depth, parentUuid) =>
     }
 
     setPageData(newPageData);
+    console.log("new page data after post: ", newPageData)
 
     // make call to db to insert block
     const backendBlockData = {
-        after_uuid: insertAfterUuid,
+        afterUuid: insertAfterUuid,
         uuid: uuid,
         title: title,
         type: blockType.text,
         parent: parentUuid,
+        newParentContent: newContent
     }
 
     post(path, () => {
@@ -62,6 +84,18 @@ const getBlockIndex = (pageData, blockUuid) => {
         }
     }
     return index
+}
+
+const getBlockByUuid = (pageData, blockUuid) => {
+    // return block, return null if not found
+    let block = null;
+    for(let i = 0; i < pageData.length; i++) {
+        if (pageData[i].uuid === blockUuid) {
+            block = pageData[i];
+            break;
+        }
+    }
+    return block
 }
 
 
