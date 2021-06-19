@@ -43,7 +43,13 @@ const postBlock = (insertAfterUuid, pageData, setPageData, depth, parentUuid) =>
     parent.content = newContent
 
     if (insertAfterUuid === null) {
-        newPageData.splice(1, 0, frontendBlockData)
+        for (let i = 0; i < pageData.length; i++) {
+            if (parentUuid === pageData[i].uuid) {
+                // spice won't throw even i+1 > props.pageData.length
+                newPageData.splice(i + 1, 0, frontendBlockData)
+                break
+            }
+        }
     } else {
         for (let i = 0; i < pageData.length; i++) {
             if (insertAfterUuid === pageData[i].uuid) {

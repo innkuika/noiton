@@ -49,11 +49,16 @@ const PageContent = (props) => {
 const Block = (props) => {
     const depth = props.data.depth
     const onAddBlockClick = async () => {
-        postBlock(props.data.uuid, props.pageData, props.setPageData, props.data.depth, props.data.parent)
+        if (props.data.content.length === 0){
+            // no content
+            postBlock(props.data.uuid, props.pageData, props.setPageData, props.data.depth, props.data.parent)
+        } else {
+            postBlock(null, props.pageData, props.setPageData, props.data.depth + 1, props.data.uuid)
+        }
     }
     const indentationPadding = 20
     return (
-        <div className='block-wrap' style={{marginLeft: `${depth*indentationPadding}px`}}>
+        <div className='block-wrap' style={{marginLeft: `${depth * indentationPadding}px`}}>
             {props.root ? undefined :
                 <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
             }
