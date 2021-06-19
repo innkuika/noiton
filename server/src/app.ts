@@ -8,6 +8,7 @@ import {root} from "./util/path";
 import {blockType, quickTitle} from "../../client/src/shared/util";
 import {depthFirstTraversal} from "./treeOperations";
 import {v4 as uuidv4} from 'uuid';
+
 const bodyParser = require('body-parser')
 const cors = require('cors')
 
@@ -41,7 +42,7 @@ createConnection({
 
     console.log("Creating the root page...");
     const blockProperties = new BlockProperties();
-    blockProperties.title =  quickTitle("root page")
+    blockProperties.title = quickTitle("root page")
 
     const block = new Block();
     block.properties = blockProperties;
@@ -81,26 +82,49 @@ createConnection({
         res.send(JSON.stringify(blocks));
     });
 
-    app.put("/update-block", cors(), jsonParser, async (req: Request, res: Response) => {
+    const updateBlock = async (uuid: string, title: string, parent: string, content: [string], res: Response) => {
         // TODO: handle error
-        // only updates title now
-        console.log("updating block...")
-        const uuid = req.body.uuid
+        // const uuid = req.body.uuid
         const blockToUpdate = await blockRepository.findOne(uuid, {relations: ["properties"]});
-        blockToUpdate.properties.title = req.body.title;
+        if (title === undefined) {
+            blockToUpdate.properties.title = title;
+        }
+        if (parent === undefined) {
+            blockToUpdate.parent = parent;
+        }
+        if (content === undefined) {
+            blockToUpdate.content = content
+        }
         await blockRepository.save(blockToUpdate);
+    }
+
+    app.put("/update-block", cors(), jsonParser, async (req: Request, res: Response) => {
+        console.log("updating block...")
+        await updateBlock(req.body.uuid, req.body.title, undefined, undefined, res)
         res.status(200);
-        res.send({block_updated: uuid})
+        res.send({block_updated: req.body.uuid})
         console.log("finished updating block...")
     })
+
+
+    app.put("/move-block", cors(), jsonParser, async (req: Request, res: Response) => {
+        console.log("moving block...")
+        const {fromUuid, toUuid, moveUuid, fromUuidContent, toUuidContent} = req.body
+
+        await updateBlock(fromUuid, undefined, undefined, fromUuidContent, res)
+        await updateBlock(toUuid, undefined, undefined, toUuidContent, res)
+        await updateBlock(moveUuid, undefined, toUuid, undefined, res)
+
+        res.status(200);
+        res.send({block_moved: moveUuid})
+        console.log("finished moving block...")
+    })
+
 
     app.post("/post-block", cors(), jsonParser, async (req: Request, res: Response) => {
         // insert new block to db
         console.log("saving new block to db...")
-        const insert_after_uuid: string = req.body.after_uuid;
-        const uuid = req.body.uuid;
-        const type = req.body.type;
-        const parentUuid = req.body.parent;
+        const {uuid, type, parent, after_uuid} = req.body
         const blockProperties = new BlockProperties();
         blockProperties.title = req.body.title;
 
@@ -108,25 +132,23 @@ createConnection({
         block.properties = blockProperties;
         block.uuid = uuid;
         block.type = type
-        block.parent = parentUuid
+        block.parent = parent
         block.content = []
         await connection.manager.save(block);
-        console.log("saved block: ", block)
-        console.log("saved block property: ", block.properties)
 
         // find parent and add to parent's content
-        const parentBlock = await blockRepository.findOne(parentUuid)
+        const parentBlock = await blockRepository.findOne(parent)
         const parentContent = parentBlock.content
         let newContent = [...parentContent]
 
-        if (insert_after_uuid === null || parentContent.length === 0) {
+        if (after_uuid === null || parentContent.length === 0) {
             // it's the first child
             newContent.unshift(uuid)
         } else {
-            for(let i = 0; i < parentContent.length; i++){
-                if (insert_after_uuid === parentContent[i]){
+            for (let i = 0; i < parentContent.length; i++) {
+                if (after_uuid === parentContent[i]) {
                     // spice won't throw even i+1 > parentContent.length
-                    newContent.splice(i+1, 0, uuid)
+                    newContent.splice(i + 1, 0, uuid)
                     break
                 }
             }

@@ -34,10 +34,7 @@ const postBlock = (insertAfterUuid, pageData, setPageData, depth, parentUuid) =>
         }
     }
 
-
-
     setPageData(newPageData);
-
 
     // make call to db to insert block
     const backendBlockData = {
@@ -55,4 +52,17 @@ const postBlock = (insertAfterUuid, pageData, setPageData, depth, parentUuid) =>
     return newPageData
 }
 
-export {postBlock}
+const getBlockIndex = (pageData, blockUuid) => {
+    // return block index, return null if not found
+    let index = null;
+    for(let i = 0; i < pageData.length; i++) {
+        if (pageData[i].uuid === blockUuid) {
+            index = i;
+            break;
+        }
+    }
+    return index
+}
+
+
+export {postBlock, getBlockIndex}

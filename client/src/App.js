@@ -47,17 +47,21 @@ const PageContent = (props) => {
 }
 
 const Block = (props) => {
+    const depth = props.data.depth
     const onAddBlockClick = async () => {
         postBlock(props.data.uuid, props.pageData, props.setPageData, props.data.depth, rootPageId)
     }
+    const indentationPadding = 20
     return (
-        <div className='block-wrap'>
+        <div className='block-wrap' style={{marginLeft: `${depth*indentationPadding}px`}}>
             {props.root ? undefined :
                 <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
             }
             <SimpleInlineToolbarEditor
                 data={props.data}
                 root={props.root}
+                pageData={props.pageData}
+                setPageData={props.setPageData}
             />
         </div>
     )
