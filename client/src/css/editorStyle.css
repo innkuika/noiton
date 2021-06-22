@@ -39,13 +39,13 @@
     stroke-width: 1;
 }
 
-.inline-toolbar-button > svg > * {
-    stroke-width: 1;
-
+.inline-toolbar-button-active > svg {
+    fill: #3FA3D5;
 }
 
 .inline-toolbar {
     box-shadow: 2px 2px 15px #e3e3e3;
+    background-color: white;
     width: 120px;
     border-radius: 4px;
     height: 30px;
