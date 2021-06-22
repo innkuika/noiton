@@ -50,6 +50,7 @@
 .block-wrap {
     display: flex;
     align-items: flex-start;
+    margin-bottom: -10px;
 }
 
 /* Text Style */

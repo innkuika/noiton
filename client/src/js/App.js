@@ -56,9 +56,18 @@ const Block = (props) => {
             postBlock(null, props.pageData, props.setPageData, props.data.depth + 1, props.data.uuid)
         }
     }
-    const indentationPadding = 20
+    const indentation = () => {
+        const indentationPadding = 20
+        const rootLeftPadding = 55
+        if (props.root) {
+            return rootLeftPadding
+        } else {
+            return indentationPadding * depth
+        }
+    }
+
     return (
-        <div className='block-wrap' style={{marginLeft: `${depth * indentationPadding}px`}}>
+        <div className='block-wrap' style={{marginLeft: `${indentation()}px`}}>
             {props.root ? undefined :
                 <button className='add-block-button flex-none font-light' onClick={onAddBlockClick}>+</button>
             }
