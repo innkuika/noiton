@@ -11,6 +11,7 @@ import createInlineToolbarPlugin from '@draft-js-plugins/inline-toolbar';
 import editorStyles from '../../css/editorStyle.css';
 import {put} from "../util/httpMethod";
 import {getBlockIndex} from "../util/blockOperation";
+import {DropdownMenu} from "./DropdownMenu";
 
 
 const SimpleInlineToolbarEditor = (props) => {
@@ -214,6 +215,7 @@ const SimpleInlineToolbarEditor = (props) => {
                 handleKeyCommand={handleKeyCommand}
             />
             {props.root ? undefined : <InlineToolbar/>}
+            {props.root ? undefined : <DropdownMenu/>}
         </div>
     );
 };

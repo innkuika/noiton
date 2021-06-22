@@ -16,4 +16,5 @@
 
 .simple-editor {
     flex: 1;
+    z-index: auto;
 }

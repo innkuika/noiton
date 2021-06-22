@@ -3,6 +3,10 @@
     font-size: large;
 }
 
+* {
+    color: #333333;
+}
+
 /* Block */
 .block {
     width: 100%;
