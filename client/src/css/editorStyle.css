@@ -21,3 +21,45 @@
 .simple-editor {
     flex: 1;
 }
+
+.inline-toolbar-button-wrapper {
+    color: #333333;
+    height: 100%;
+    width: 25%;
+    padding-top: 2px;
+}
+
+.inline-toolbar-button-wrapper:hover {
+    background-color: #efefef;
+}
+
+.inline-toolbar-button > svg {
+    fill: #515151;
+    width: 18px;
+    stroke-width: 1;
+}
+
+.inline-toolbar-button > svg > * {
+    stroke-width: 1;
+
+}
+
+.inline-toolbar {
+    box-shadow: 2px 2px 15px #e3e3e3;
+    width: 120px;
+    border-radius: 4px;
+    height: 30px;
+    border: 1px solid #e3e3e3;
+    z-index: 3;
+    position: absolute;
+}
+
+.inline-toolbar > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+
+

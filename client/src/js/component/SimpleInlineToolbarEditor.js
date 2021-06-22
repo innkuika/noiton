@@ -17,7 +17,16 @@ import {DropdownMenu} from "./DropdownMenu";
 const SimpleInlineToolbarEditor = (props) => {
     const editor = useRef < Editor | null > (null);
     const [plugins, InlineToolbar] = useMemo(() => {
-        const inlineToolbarPlugin = createInlineToolbarPlugin();
+        const inlineToolbarPlugin = createInlineToolbarPlugin({theme: {
+                toolbarStyles: {
+                    toolbar: 'inline-toolbar',
+                },
+                buttonStyles: {
+                    button: 'inline-toolbar-button',
+                    buttonWrapper: 'inline-toolbar-button-wrapper',
+                    active: 'inline-toolbar-button-active',
+                },
+            },});
         return [[inlineToolbarPlugin], inlineToolbarPlugin.InlineToolbar];
     }, []);
     const [hasUpdated, setHasUpdated] = useState(false);
