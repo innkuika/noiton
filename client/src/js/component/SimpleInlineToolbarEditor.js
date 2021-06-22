@@ -215,7 +215,7 @@ const SimpleInlineToolbarEditor = (props) => {
                 handleKeyCommand={handleKeyCommand}
             />
             {props.root ? undefined : <InlineToolbar/>}
-            {props.root ? undefined : <DropdownMenu/>}
+            {(! props.root && editorState.getCurrentContent().getPlainText() === "/" && editorState.getSelection().getHasFocus()) ?  <DropdownMenu/> : undefined}
         </div>
     );
 };
