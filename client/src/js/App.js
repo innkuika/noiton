@@ -60,7 +60,7 @@ const Block = (props) => {
     return (
         <div className='block-wrap' style={{marginLeft: `${depth * indentationPadding}px`}}>
             {props.root ? undefined :
-                <button className='add-block-button flex-none' onClick={onAddBlockClick}>+</button>
+                <button className='add-block-button flex-none font-light' onClick={onAddBlockClick}>+</button>
             }
             <SimpleInlineToolbarEditor
                 data={props.data}
