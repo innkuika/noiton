@@ -48,14 +48,20 @@ const SimpleInlineToolbarEditor = (props) => {
         }, updateInterval);
         return () => clearInterval(interval);
     });
+    const [showDropdown, setShowDropdown] = useState(false)
 
     const onChange = (newEditorState) => {
+        console.log("on change triggered", props.data.uuid)
         const currentContent = editorState.getCurrentContent()
         const newContent = newEditorState.getCurrentContent()
 
         if (currentContent !== newContent) {
             setHasUpdated(true)
+            if (newContent.getPlainText() === "/") {
+                setShowDropdown(true)
+            }
         }
+
         setEditorState(newEditorState);
     };
 
@@ -224,7 +230,7 @@ const SimpleInlineToolbarEditor = (props) => {
                 handleKeyCommand={handleKeyCommand}
             />
             {props.root ? undefined : <InlineToolbar/>}
-            {(! props.root && editorState.getCurrentContent().getPlainText() === "/" && editorState.getSelection().getHasFocus()) ?  <DropdownMenu/> : undefined}
+            <DropdownMenu show={!props.root && showDropdown} setShowDropdown={setShowDropdown}/>
         </div>
     );
 };

@@ -2,15 +2,20 @@ import '../../css/reset.css'
 import '../../css/DropodownMenuStyle.css'
 
 const DropdownMenu = (props) => {
+    if (!props.show) {
+        return null
+    }
+
     const options = [
         {name: 'Heading 1', description: 'Big section heading.', value: 'h1', img: 'h1-icon.png'},
         {name: 'Heading 2', description: 'Medium section heading.', value: 'h2', img: 'h2-icon.png'},
     ];
 
-    return(
+    return (
         <div className='dropdown-menu'>
             {options.map((o, i)=> {
-                return <DropdownMenuItem key={i} name={o.name} description={o.description} img={o.img} value={o.value} setSelection={props.setSelection}/>
+                return <DropdownMenuItem key={i} name={o.name} description={o.description} img={o.img} value={o.value}
+                                         setSelection={props.setSelection} setShowDropdown={props.setShowDropdown}/>
             })}
         </div>
     )
@@ -21,7 +26,9 @@ const DropdownMenuItem = (props) => {
         <div className='dropdown-option'
             onClick={e => {
             e.preventDefault()
-            props.setSelection(props.value)
+            props.setShowDropdown(false)
+            console.log('dropdown menu item clicked')
+            // props.setSelection(props.value)
         }}>
             <span className='option-img'>
                 <img src={`img/${props.img}`}/>
