@@ -7,8 +7,8 @@ const DropdownMenu = (props) => {
     }
 
     const options = [
-        {name: 'Heading 1', description: 'Big section heading.', value: 'h1', img: 'h1-icon.png'},
-        {name: 'Heading 2', description: 'Medium section heading.', value: 'h2', img: 'h2-icon.png'},
+        {name: 'Heading 1', description: 'Big section heading.', value: 'type-h1', img: 'h1-icon.png'},
+        {name: 'Heading 2', description: 'Medium section heading.', value: 'type-h2', img: 'h2-icon.png'},
     ];
 
     return (
@@ -22,14 +22,15 @@ const DropdownMenu = (props) => {
 }
 
 const DropdownMenuItem = (props) => {
+    const onClick = (e) => {
+        e.preventDefault()
+        props.setShowDropdown(false)
+        // update page data
+        // make call to db
+    }
     return (
         <div className='dropdown-option'
-            onClick={e => {
-            e.preventDefault()
-            props.setShowDropdown(false)
-            console.log('dropdown menu item clicked')
-            // props.setSelection(props.value)
-        }}>
+            onClick={onClick}>
             <span className='option-img'>
                 <img src={`img/${props.img}`}/>
             </span>

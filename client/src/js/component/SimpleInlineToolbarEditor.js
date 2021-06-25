@@ -17,7 +17,8 @@ import {DropdownMenu} from "./DropdownMenu";
 const SimpleInlineToolbarEditor = (props) => {
     const editor = useRef < Editor | null > (null);
     const [plugins, InlineToolbar] = useMemo(() => {
-        const inlineToolbarPlugin = createInlineToolbarPlugin({theme: {
+        const inlineToolbarPlugin = createInlineToolbarPlugin({
+            theme: {
                 toolbarStyles: {
                     toolbar: 'inline-toolbar',
                 },
@@ -26,12 +27,14 @@ const SimpleInlineToolbarEditor = (props) => {
                     buttonWrapper: 'inline-toolbar-button-wrapper',
                     active: 'inline-toolbar-button-active',
                 },
-            },});
+            },
+        });
         return [[inlineToolbarPlugin], inlineToolbarPlugin.InlineToolbar];
     }, []);
     const [hasUpdated, setHasUpdated] = useState(false);
     const [editorState, setEditorState] = useState(EditorState.createWithContent(convertFromRaw(JSON.parse(props.data.properties.title))))
     const updateInterval = 1000;
+    const type = props.data.type
     // save content every updateInterval seconds to db if there is an update
     useEffect(() => {
         const interval = setInterval(() => {
@@ -51,7 +54,6 @@ const SimpleInlineToolbarEditor = (props) => {
     const [showDropdown, setShowDropdown] = useState(false)
 
     const onChange = (newEditorState) => {
-        console.log("on change triggered", props.data.uuid)
         const currentContent = editorState.getCurrentContent()
         const newContent = newEditorState.getCurrentContent()
 
@@ -72,6 +74,8 @@ const SimpleInlineToolbarEditor = (props) => {
     const myBlockStyleFn = () => {
         if (props.root) {
             return 'header-zero';
+        } else {
+            return type
         }
     }
 
@@ -100,13 +104,9 @@ const SimpleInlineToolbarEditor = (props) => {
                 const parentUuid = newPageData[index].parent
                 const parent = newPageData[getBlockIndex(newPageData, parentUuid)]
                 const blockParentContentIndex = parent.content.indexOf(props.data.uuid)
-                console.log("parent content before splice: ", parent.content)
-                console.log("index in parent content: ", blockParentContentIndex)
 
                 if (blockParentContentIndex !== -1) {
                     parent.content.splice(blockParentContentIndex, 1);
-                    console.log("parent content after splice: ", parent.content)
-
                 }
 
                 // add block to new parent
@@ -221,16 +221,16 @@ const SimpleInlineToolbarEditor = (props) => {
                 editorState={editorState}
                 onChange={onChange}
                 placeholder={props.root ? "Untitled" : "Start typing"}
-                wrapperClassName="wrapper-class"
-                editorClassName="editor-class"
-                toolbarClassName="toolbar-class"
                 blockStyleFn={myBlockStyleFn}
                 plugins={props.root ? undefined : plugins}
                 keyBindingFn={keyBindingFn}
                 handleKeyCommand={handleKeyCommand}
             />
             {props.root ? undefined : <InlineToolbar/>}
-            <DropdownMenu show={!props.root && showDropdown} setShowDropdown={setShowDropdown}/>
+            <DropdownMenu show={!props.root && showDropdown}
+                          setShowDropdown={setShowDropdown}
+                          pageData={props.pageData}
+                          setPageData={props.setPageData}/>
         </div>
     );
 };
