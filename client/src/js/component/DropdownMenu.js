@@ -52,7 +52,7 @@ const DropdownMenuItem = (props) => {
   return (
     <div className="dropdown-option" onClick={onClick} value={props.value}>
       <span className="option-img">
-        <img src={`img/${props.img}`} value={props.value} />
+        <img src={`img/${props.img}`} value={props.value} alt="option img" />
       </span>
       <span className="option-description">
         <div className="text-sm font-medium option-title" value={props.value}>{props.name}</div>
