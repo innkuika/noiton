@@ -1,4 +1,4 @@
-const url = "http://localhost:8000"
+const url = process.env.REACT_APP_API_ENDPOINT
 
 const put = (path, thenFun, catchFun, data) => {
     const options = {

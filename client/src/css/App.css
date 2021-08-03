@@ -38,7 +38,6 @@
 }
 
 
-
 *:focus {
     outline: 0 !important;
 }
@@ -58,6 +57,16 @@
     font-size: xxx-large;
     font-weight: bold;
 
+}
+
+.type-h1 {
+    font-size: xx-large;
+    font-weight: 700;
+}
+
+.type-h2 {
+    font-size: x-large;
+    font-weight: 700;
 }
 
 .root-page-block > .DraftEditor-root > .public-DraftEditorPlaceholder-root {
